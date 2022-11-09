@@ -77,6 +77,28 @@ async function run() {
       const byemail = await cursor.toArray();
       res.send(byemail);
     });
+
+    // specific id by using email query
+
+    app.get("/myreviews/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const myreview = await reviewCollectioin.findOne(query);
+      res.send(myreview);
+    });
+    // update database review
+    app.put("/myreviews/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+       
+    });
+
+    app.get("/update/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await reviewCollectioin.findOne(query);
+      res.send(result);
+    });
   } finally {
   }
 }
