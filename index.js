@@ -17,6 +17,21 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
+function verifyJWT(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    res.status(401).send({ message: "Unauthorized access" });
+  }
+  const token = authHeader.split(" ")[1];
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
+    if (err) {
+      res.status(401).send({ message: "Unauthorized access" });
+    }
+    req.decoded = decoded;
+    next();
+  });
+}
+
 async function run() {
   try {
     const serviceCollection = client
@@ -26,6 +41,8 @@ async function run() {
     const reviewCollectioin = client
       .db("DentalSolutionDB")
       .collection("reviews");
+
+
 
     app.get("/services", async (req, res) => {
       const query = {};
@@ -86,11 +103,34 @@ async function run() {
       const myreview = await reviewCollectioin.findOne(query);
       res.send(myreview);
     });
+    // Delete review
+
+    app.delete("/myreviews/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await reviewCollectioin.deleteOne(query);
+      res.send(result);
+      console.log(result);
+    });
+
     // update database review
     app.put("/myreviews/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: ObjectId(id) };
-       
+      const myreview = req.body;
+      const option = { upsert: true };
+      const updateMyReview = {
+        $set: {
+          name: myreview.name,
+          message: myreview.message,
+        },
+      };
+      const result = await reviewCollectioin.updateOne(
+        filter,
+        updateMyReview,
+        option
+      );
+      res.send(result);
     });
 
     app.get("/update/:id", async (req, res) => {
