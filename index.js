@@ -52,7 +52,7 @@ async function run() {
     });
 
     app.get("/reviews", async (req, res) => {
-      console.log(req.query._id);
+      console.log(req.query.service);
       let query = {};
       if (req.query.service) {
         query = {
@@ -65,7 +65,7 @@ async function run() {
     });
 
     // get data by email query
-    app.get("/reviews", async (req, res) => {
+    app.get("/myreviews", async (req, res) => {
       console.log(req.query.email);
       let query = {};
       if (req.query.email) {
