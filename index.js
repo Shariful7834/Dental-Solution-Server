@@ -42,7 +42,15 @@ async function run() {
       .db("DentalSolutionDB")
       .collection("reviews");
 
-
+    // jwt
+    app.post("/jwt", (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "1h",
+      });
+      res.send({ token });
+      console.log(user);
+    });
 
     app.get("/services", async (req, res) => {
       const query = {};
@@ -82,8 +90,13 @@ async function run() {
     });
 
     // get data by email query
-    app.get("/myreviews", async (req, res) => {
+    app.get("/myreviews", verifyJWT, async (req, res) => {
       console.log(req.query.email);
+      const decoded = req.decoded;
+      console.log("inside orders api", decoded);
+      if (decoded.email !== req.query.email) {
+        res.status(401).send({ message: "Unauthorized access" });
+      }
       let query = {};
       if (req.query.email) {
         query = {
