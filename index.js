@@ -5,7 +5,7 @@ const port = process.env.PORT || 5000;
 require("dotenv").config();
 app.use(cors());
 app.use(express.json());
-// var jwt = require("jsonwebtoken");
+var jwt = require("jsonwebtoken");
 
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.y2saknb.mongodb.net/?retryWrites=true&w=majority`;
@@ -65,6 +65,14 @@ async function run() {
       const services = await cursor.toArray();
       console.log(services);
       res.send(services);
+    });
+
+    // post add service
+    app.post("/allservices", async (req, res) => {
+      const services = req.body;
+      const result = await serviceCollection.insertOne(services);
+      console.log(result);
+      res.send(result);
     });
 
     app.get("/services/:id", async (req, res) => {
